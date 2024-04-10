@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# Client-side and test folders
+.vscode/*
+build/*
+test/*
