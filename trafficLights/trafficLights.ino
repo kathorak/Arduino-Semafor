@@ -109,27 +109,102 @@ class Button{
   }
 };
 
+class TrafficLights3{
+enum States {STOP, READY, GO, HALT, OFF};
+private:
+  States _state;
+
+  Led _r, _y, _g;
+  Timer _t;
+
+  void _stop(){
+    _r.turn(true);
+    _y.turn(false);
+    _g.turn(false);
+  }
+  void _ready(){
+    _r.turn(false);
+    _y.turn(true);
+    _g.turn(false);
+  }
+  void _go(){
+    _r.turn(false);
+    _y.turn(false);
+    _g.turn(true);
+  }
+  void _halt(){
+    _r.turn(true);
+    _y.turn(true);
+    _g.turn(false);
+  }
+  void _off(){
+    _r.turn(false);
+    if(_t.timeout()){
+      _y.switchState();
+      _t.reset();
+    }
+    _g.turn(false);
+  }
+
+public:
+  TrafficLights3(byte pin_r, byte pin_y, byte pin_g, States state):
+  _r(pin_r), _y(pin_y), _g(pin_g), _t(1000){
+    _state = state;
+  }
+
+  void init(){
+    _r.init();
+    _y.init();
+    _g.init();
+    _t.init();
+  }
+
+  void changeState(States newState){
+    _state = newState;
+
+  }
+
+  void update(){
+    switch (_state){
+      case STOP:
+        _stop();
+        break;
+      case READY:
+        _ready();
+        break;
+      case GO:
+        _go();
+        break;
+      case HALT:
+        _halt();
+        break;
+      case OFF:
+        _off();
+        break;
+    }
+  }
+};
+
 //* ===== Variables ======
 
-int i = 1000;
-int d = 200;
+int i = 1;
 
-Timer timer(i);
-Led led(1);
+TrafficLights3 semafor(3, 2, 1, 0);
 Button button(9);
 
 //* ===== Arduino code ======
 
 void setup(){
-  led.init();
-  led.turn(false);
-  timer.init();
   button.init();
+  semafor.init();
 }	
 
 void loop(){
   if(button.isPressed()){
-    led.switchState();
+    semafor.changeState(i);
+    i++;
+    i %= 5;
   }
-}
 
+  semafor.update();
+}
